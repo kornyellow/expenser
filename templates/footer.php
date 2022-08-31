@@ -1,3 +1,7 @@
+</article>
+
+</main>
+
 </body>
 
 </html>

@@ -14,5 +14,7 @@
 			"email": "kornkubzaza@gmail.com"
 		}
 	],
-	"require": {}
+	"require": {
+      "ext-mysqli": "*"
+    }
 }

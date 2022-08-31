@@ -3,6 +3,9 @@
 use libraries\korn\KornConfig;
 use libraries\korn\client\KornHeader;
 use libraries\korn\utils\KornNetwork;
+use libraries\korn\client\KornCookie;
+use libraries\expenser\methods\authentication\EPUser;
+use libraries\expenser\methods\authentication\EPUserToken;
 
 // Make errors visible
 ini_set('display_errors', 1);
@@ -56,11 +59,16 @@ else {
 }
 
 // Check login
-$isLogin      = false;
+$token = KornCookie::read('sessionToken');
+if (!is_null($token)) {
+	$userToken = EPUserToken::getByToken($token);
+	$user      = $userToken->getUser();
+	EPUser::setSignedIn($user);
+}
+
+$isLogin      = !is_null(EPUser::getSignedIn());
 $isFileExists = file_exists($requestFile);
 $isApi        = str_starts_with(KornNetwork::getRequestPath(), 'api');
-
-// TODO: working on an APIs
 
 // Construct an entire page
 if ($isApi) {
@@ -79,7 +87,10 @@ if ($isApi) {
 }
 else {
 	if ($isLogin) {
-		if ($isFileExists) {
+		if (KornNetwork::getRequestPath() === '') {
+			include('contents/dashboard/index.php');
+		}
+		else if ($isFileExists) {
 			include($requestFile);
 		}
 		else {
@@ -90,6 +101,9 @@ else {
 	else {
 		if (KornNetwork::getRequestPath() === '') {
 			include('templates/authentication/signin.php');
+		}
+		else if (KornNetwork::getRequestPath() === 'signup') {
+			include('templates/authentication/signup.php');
 		}
 		else {
 			KornNetwork::redirectPage();
